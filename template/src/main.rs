@@ -17,3 +17,12 @@ fn main() {
     }
 }
 
+#[allow(dead_code)]
+fn part_one(input: &str) {
+
+}
+
+#[allow(dead_code)]
+fn part_two(input: &str) {
+    
+}
