@@ -11,18 +11,33 @@ fn main() {
     println!("{:?}", input);
     println!("Input lenght: {}", input.len());
 
-    #[allow(unused_variables)]
-    for line in input.split("\n") {
-
-    }
+    part_two(&input);   
 }
 
 #[allow(dead_code)]
 fn part_one(input: &str) {
-
+    let mut checksum = 0;
+    for line in input.split("\n") {
+        let mut parts = line.split_whitespace().map(|x| x.parse::<i32>().unwrap()).collect::<Vec<i32>>();
+        let max = parts.iter().max().unwrap();
+        let min = parts.iter().min().unwrap();
+        checksum += max - min;
+    }
+    println!("Checksum: {}", checksum);
 }
 
 #[allow(dead_code)]
 fn part_two(input: &str) {
-    
+    let mut checksum = 0;
+    for line in input.split("\n") {
+        let mut parts = line.split_whitespace().map(|x| x.parse::<i32>().unwrap()).collect::<Vec<i32>>();
+        for i in 0..parts.len() {
+            for j in 0..parts.len() {
+                if i != j && parts[i] % parts[j] == 0 {
+                    checksum += parts[i] / parts[j];
+                }
+            }
+        }
+    }   
+    println!("Checksum: {}", checksum);
 }
