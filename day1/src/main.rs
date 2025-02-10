@@ -17,7 +17,7 @@ fn main() {
 
 #[allow(dead_code)]
 fn part_one(input: &str) {
-    let mut prev_int = 0;
+    let mut prev_int;
     let mut cur_int = 0;
     let mut sum = 0;
     for c in input.chars() {
@@ -38,7 +38,6 @@ fn part_one(input: &str) {
 #[allow(dead_code)]
 fn part_two(input: &str) {
     let mut sum = 0;
-    let cur_int = 0;
     let comp_int = input.len() / 2;
     let chars = input.chars().collect::<Vec<char>>();
 
