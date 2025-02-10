@@ -51,7 +51,7 @@ fi
 cp -r template/* "$project_name"
 
 # Find the workspace file (newest file matching *.code-workspace)
-workspace_file=$(find . -name "*.code-workspace" -type f -print0 | xargs -r -0 ls -1 -t | head -1)
+workspace_file=$(find . -name "*.code-workspace" -print0 | xargs -r -0 ls -1 -t | head -1)
 # Project path
 # (Full path would be "$(pwd)/$project_name"/Cargo.toml")
 project_path="$project_name/Cargo.toml"
@@ -61,7 +61,7 @@ if [[ -z "$workspace_file" ]]; then
     exit 0
 fi
 
-# if verbos mode enabled, echo what we're doing
+# if verbose mode enabled, echo what we're doing
 if [[ "$verbose" = true ]]; then
     echo "Project path: $project_path"
     echo "Updating $workspace_file..."
