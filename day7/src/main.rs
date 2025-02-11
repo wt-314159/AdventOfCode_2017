@@ -11,7 +11,7 @@ fn main() {
     println!("{:?}", input);
     println!("Input lenght: {}", input.len());
 
-    part_one(&input); 
+    part_one(&input);
 }
 
 #[allow(dead_code)]
