@@ -12,7 +12,7 @@ fn main() {
     //println!("{:?}", input);
     println!("Input lenght: {}", input.len());
 
-    part_one(&input);
+    part_two(&input);
 }
 
 #[allow(dead_code)]
@@ -28,7 +28,51 @@ fn part_one(input: &str) {
 fn part_two(input: &str) {
     let towers = create_graph(input);
 
-    // recursive_weight_check(&"rqwgj", &towers);
+    recursive_weight_check(&"rqwgj", &towers);
+}
+
+fn recursive_weight_check(name: &str, towers: &HashMap<&str, Rc<RefCell<Tower>>>) -> (i32, bool) {
+    let tower = towers.get(name).expect("Couldn't find tower");
+    let mut weight = tower.borrow().weight;
+
+    if let Some(children) = &tower.borrow().children {
+        let mut children_weights = Vec::new();
+        for &child in children {
+            let (child_weight, cont) = recursive_weight_check(child, towers);
+            if !cont {
+                return (0, false);
+            }
+            children_weights.push((child, child_weight));
+            weight += child_weight;
+        }
+        let first = children_weights.first().unwrap().1;
+        if children_weights.iter().any(|(_, w)| *w != first) {
+            handle_results(name, children_weights, towers);
+            return (0, false);
+        }
+    }
+    return (weight, true);
+}
+
+fn handle_results(tower: &str, children: Vec<(&str, i32)>, towers: &HashMap<&str, Rc<RefCell<Tower>>>) {
+    let mut hash_weights = HashMap::new();
+    for (n, w) in &children {
+        let count = hash_weights.entry(w).or_insert(0);
+        *count += 1;
+    }
+    let odd_one_out = hash_weights.iter()
+        .find(|(_, c)| **c == 1)
+        .expect("Failed to find a unique weight").0;
+    let odd_name = children.iter()
+        .find(|(_, w)| *w == **odd_one_out)
+        .expect("Failed to find tower with given weight among child towers");
+    let unbalanced_tower = towers.get(odd_name.0)
+        .expect("Failed to find tower with given name");
+
+    println!("Unbalanced tower: {}, weight: {}, children weights: {:?}", 
+        unbalanced_tower.borrow().name,
+        unbalanced_tower.borrow().weight,
+        children);
 }
 
 #[derive(Debug)]
