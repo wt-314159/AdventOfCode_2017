@@ -18,7 +18,7 @@ fn main() {
 fn calculate_registers(input: &str) {
     let mut registers = create_registers(input);
     let mut max = 0;
-    for line in input.split("\n") {
+    for line in input.lines() {
         let parts = Parts::from_line(line);
         let comp_register = registers.get(parts.comp_register)
             .expect("Failed to get the comp register");
