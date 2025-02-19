@@ -29,7 +29,7 @@ fn part_two(input: i32) {
     let mut cur_len = 1;
     let mut dir = 0;
 
-    while true {
+    loop {
         if cur_len == len {
             dir = (dir + 1) % 4;
             if dir % 2 == 0 {
@@ -73,7 +73,7 @@ fn find_coords(n: usize) -> (isize, isize) {
     let mut cur_len = 1;
     let mut dir = 0;
 
-    for i in 1..n {
+    for _ in 1..n {
         if cur_len == len {
             dir = (dir + 1) % 4;
             if dir % 2 == 0 {

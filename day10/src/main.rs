@@ -21,7 +21,7 @@ fn main() {
 fn part_one(input: &str) {
     let lengths = get_lengths(input);
     let mut values = create_values();
-    let hash = hash(&mut values, &lengths, 0, 0).0;
+    let _hash = hash(&mut values, &lengths, 0, 0).0;
     println!(
         "Multiple = {} * {} = {}",
         values[0],
@@ -37,7 +37,7 @@ fn part_two(input: &str) {
     let mut cur_idx = 0;
     let mut skip_size = 0;
     let mut values = create_values();
-    for i in 0..64 {
+    for _ in 0..64 {
         (cur_idx, skip_size) = hash(&mut values, &lengths, cur_idx, skip_size);
     }
     

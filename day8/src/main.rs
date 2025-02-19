@@ -24,7 +24,7 @@ fn calculate_registers(input: &str) {
             .expect("Failed to get the comp register");
 
         if calculate(parts.operation, comp_register, &parts.comp_amount) {
-            let mut entry = registers.entry(parts.register_name).or_default();
+            let entry = registers.entry(parts.register_name).or_default();
             *entry += parts.increment;
             if *entry > max {
                 max = *entry;

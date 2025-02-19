@@ -31,7 +31,7 @@ fn calc_score_count_garbage(input: &str) -> (i32, i32) {
     let mut skip = false;
     let mut garbage = 0;
     
-    let mut chars = input.chars();
+    let chars = input.chars();
     for c in chars {
         // Probably a better way of doing this, but this should work for now
         if skip {

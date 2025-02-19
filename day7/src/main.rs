@@ -47,16 +47,16 @@ fn recursive_weight_check(name: &str, towers: &HashMap<&str, Rc<RefCell<Tower>>>
         }
         let first = children_weights.first().unwrap().1;
         if children_weights.iter().any(|(_, w)| *w != first) {
-            handle_results(name, children_weights, towers);
+            handle_results(children_weights, towers);
             return (0, false);
         }
     }
     return (weight, true);
 }
 
-fn handle_results(tower: &str, children: Vec<(&str, i32)>, towers: &HashMap<&str, Rc<RefCell<Tower>>>) {
+fn handle_results(children: Vec<(&str, i32)>, towers: &HashMap<&str, Rc<RefCell<Tower>>>) {
     let mut hash_weights = HashMap::new();
-    for (n, w) in &children {
+    for (_, w) in &children {
         let count = hash_weights.entry(w).or_insert(0);
         *count += 1;
     }
@@ -116,7 +116,7 @@ fn insert_tower<'a>(line: &'a str, towers: &mut HashMap<&'a str, Rc<RefCell<Towe
         // Check all existing towers to see if any of their children is current tower
         // If so, make current tower's parent that tower
         if let Some(ref i_children) = i_tower.borrow().children {
-            if let Some(par) = i_children.iter()
+            if let Some(_) = i_children.iter()
                 .find(|i_c| ***i_c == *name) 
             {
                 opt_parent = Some(Rc::clone(&i_tower));
@@ -125,7 +125,7 @@ fn insert_tower<'a>(line: &'a str, towers: &mut HashMap<&'a str, Rc<RefCell<Towe
         // Check all existing towers to see if any of current towers children already exist
         // If so, set that tower's parent to current tower
         if let Some(ref children) = tower.borrow().children {
-            if let Some(par) = children.iter()
+            if let Some(_) = children.iter()
                 .find(|c| ***c == *i_name) 
             {
                 i_tower.borrow_mut().parent = Some(Rc::clone(&tower));
