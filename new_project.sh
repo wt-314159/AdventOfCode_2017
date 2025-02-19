@@ -41,6 +41,7 @@ if [[ -z "$project_name" ]]; then
 fi
 
 # Create project directory
+# TODO! change to using cargo new?
 mkdir "$project_name"
 
 # Copy template files into new directory
