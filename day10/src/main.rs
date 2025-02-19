@@ -12,14 +12,9 @@ fn main() {
     // let input = include_str!("../inputs/test_puzzle_input.txt");
     // println!("{:?}", input);
     println!("Input lenght: {}", input.len());
-
-    let values: [u8; 16] = [65, 27, 9, 1, 4, 3, 40, 50, 91, 7, 6, 0, 2, 5, 68, 22];
-    let xor_test = 65 ^ 27 ^ 9 ^ 1 ^ 4 ^ 3 ^ 40 ^ 50 ^ 91 ^ 7 ^ 6 ^ 0 ^ 2 ^ 5 ^ 68 ^ 22;
-    // let xor = xor_values(values);
-    // println!("XOR: {}", xor);
-    println!("Direct XOR {}", xor_test);
+    
     // part_one(input);
-    // part_two(input);
+    part_two(input);
 }
 
 #[allow(dead_code)]
@@ -31,7 +26,7 @@ fn part_one(input: &str) {
         "Multiple = {} * {} = {}",
         values[0],
         values[1],
-        values[0] * values[1]
+        (values[0] as u32) * (values[1] as u32)
     );
 }
 
@@ -39,17 +34,16 @@ fn part_one(input: &str) {
 fn part_two(input: &str) {
     let mut lengths = Vec::from(input.as_bytes());
     lengths.append(&mut vec![17, 31, 73, 47, 23]);
-    println!("{:?}", lengths);
     let mut cur_idx = 0;
     let mut skip_size = 0;
     let mut values = create_values();
     for i in 0..64 {
         (cur_idx, skip_size) = hash(&mut values, &lengths, cur_idx, skip_size);
     }
-
+    
     // Create dense hash of the output
     let dense_hash = create_dense_hash(values);
-    let output = dense_hash_to_string(dense_hash);
+    let output = dense_hash_to_string(&dense_hash);
     println!("{output}");
 }
 
@@ -120,28 +114,24 @@ fn create_dense_hash(values: [u8; NUM_VALS]) -> [u8; 16] {
     let mut dense_hash = [0u8; 16];
     for i in 0..16 {
         let offset = i * 16;
-        let mut result = values[i];
-        for j in 1..16 {
-            let idx = offset + j;
-            result ^= values[idx];
-        }
-        dense_hash[i] = result;
+        dense_hash[i] = xor_values(&values[offset..offset+16]);
     }
     dense_hash
 }
 
-fn xor_values(values: [u8; 16]) -> i32 {
-    let mut result = values[0] as i32;
-    for i in 1..16 {
-        result ^= values[i] as i32;
+fn xor_values(values: &[u8]) -> u8 {
+    let mut result = values[0];
+    for i in 1..values.len() {
+        result ^= values[i];
     }
     result
 }
 
-fn dense_hash_to_string(dense_hash: [u8; 16]) -> String {
+fn dense_hash_to_string(dense_hash: &[u8]) -> String {
     let mut output = String::new();
-    for i in 0..16 {
-        output.push_str(&format!("{:x}", dense_hash[i]));
+    for i in 0..dense_hash.len() {
+        output.push_str(&format!("{:02x}", dense_hash[i]));
     }
     output
 }
+
