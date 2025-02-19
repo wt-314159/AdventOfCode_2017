@@ -71,3 +71,5 @@ if ! grep -q "$project_path" "$workspace_file"; then
     # Add project to the linkedProjects array
     jq ".settings.\"rust-analyzer.linkedProjects\" += [\"$project_path\"]" "$workspace_file" > tmpfile && mv tmpfile $"$workspace_file"
 fi
+
+# TODO! rename project name in cargo.toml from 'template' to whatever name we passed to this
