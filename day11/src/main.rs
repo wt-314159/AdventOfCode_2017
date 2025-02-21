@@ -12,6 +12,7 @@ fn main() {
     // let input = "se,sw,se,sw,sw";
     println!("Input lenght: {}", input.len());
 
+    part_two(&input);
     part_one(&input);
 }
 
@@ -30,7 +31,33 @@ fn part_one(input: &str) {
 }
 
 #[allow(dead_code)]
-fn part_two(input: &str) {}
+fn part_two(input: &str) {
+    // HACK This would be better achieved by incrementally counting the
+    // maximum distance from origin, by implementing the shortest_path
+    // rules during the stage where we increment each axis, but as a
+    // quick and dirty method this will work
+    let mut max_distance = 0;
+    let mut distances = Distances::new(0, 0, 0);
+    let mut temp_distances = Distances::new(0, 0, 0);
+    for dir in input.split(',') {
+        match dir {
+            "n" => distances.n += 1,
+            "s" => distances.n -= 1,
+            "sw" => distances.sw += 1,
+            "ne" => distances.sw -= 1,
+            "se" => distances.se += 1,
+            "nw" => distances.se -= 1,
+            _ => panic!("Unexpected direction! {dir}"),
+        }
+
+        temp_distances = distances.clone();
+        let cur_distance = temp_distances.find_shortest_path();
+        if cur_distance > max_distance {
+            max_distance = cur_distance;
+        }
+    }
+    println!("Furthest distance: {}", max_distance);
+}
 
 fn find_axis_distances(input: &str) -> Distances {
     let mut distances = Distances::new(0, 0, 0);
@@ -48,7 +75,7 @@ fn find_axis_distances(input: &str) -> Distances {
     distances
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 struct Distances {
     n: i32,
     sw: i32,
