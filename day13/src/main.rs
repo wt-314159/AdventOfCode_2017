@@ -41,8 +41,8 @@ fn part_two(input: &str) {
     
     let mut delay = 0;
     loop {
-        eprint!("\r\tTrying delay {delay}");
-        if attempt_with_delay(&mut layers, 0) {
+        eprint!("\r\tDelay {delay}");
+        if attempt_with_delay(&mut layers, delay) {
             break;
         }
         delay += 1;
