@@ -37,11 +37,10 @@ fn part_one(input: &str) {
 
 #[allow(dead_code)]
 fn part_two(input: &str) {
-    let mut layers = parse_input(input);
+    let mut layers = parse_input_just_walls(input);
     
-    let mut delay = 0;
+    let mut delay = 1;
     loop {
-        eprint!("\r\tDelay {delay}");
         if attempt_with_delay(&mut layers, delay) {
             break;
         }
@@ -50,25 +49,8 @@ fn part_two(input: &str) {
     println!("Succeeded with delay {}", delay);
 }
 
-fn attempt_with_delay(layers: &mut Vec<Option<Layer>>, delay: usize) -> bool {
-    layers.iter_mut().for_each(|l| {
-        if let Some(w) = l {
-            w.advance_scanner_n_times(delay);
-        }
-    });
-    for i in 0..layers.len() {
-        if let Some(wall) = &layers[i] {
-            if wall.scanner_idx == 0 {
-                return false;
-            }
-        }
-        layers.iter_mut().for_each(|l| {
-            if let Some(w) = l {
-                w.advance_scanner();
-            }
-        });
-    }
-    true
+fn attempt_with_delay(layers: &mut Vec<Layer>, delay: usize) -> bool {
+    layers.iter().all(|l| !l.scanner_at_0(delay))
 }
 
 fn parse_input(input: &str) -> Vec<Option<Layer>> {
@@ -83,6 +65,19 @@ fn parse_input(input: &str) -> Vec<Option<Layer>> {
             layers.append(&mut (1..depth_diff).map(|_| None).collect());
         }
         layers.push(Some(Layer::new(depth, range)));
+        prev_depth = depth;
+    }
+    layers
+}
+
+fn parse_input_just_walls(input: &str) -> Vec<Layer> {
+    let mut layers = Vec::new(); 
+    let mut prev_depth = 0;
+    for line in input.lines() {
+        let mut parts = line.split(": ");
+        let depth = parts.next().unwrap().parse::<usize>().unwrap();
+        let range = parts.next().unwrap().parse::<usize>().unwrap();
+        layers.push(Layer::new(depth, range));
         prev_depth = depth;
     }
     layers
@@ -135,7 +130,8 @@ impl Layer {
         }
     }
 
-    fn scanner_at_0(&self, time: usize) -> bool {
-        self.period % time == 0
+    fn scanner_at_0(&self, start_time: usize) -> bool {
+        let wall_time = start_time + self.depth;
+        wall_time % self.period == 0
     }
 }
