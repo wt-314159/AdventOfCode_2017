@@ -1,5 +1,6 @@
 #[allow(unused_imports)]
 use std::{fs, collections::HashMap, cmp::min, cmp::max};
+use day16::*;
 // use fancy_regex::Regex;
 // use regex::Regex;
 // use md5::{Digest, Md5};
@@ -11,69 +12,49 @@ fn main() {
     // println!("{:?}", input);
     println!("Input length: {}", input.len());
 
-    part_one(&input); 
+    // part_one(&input); 
+    println!("Hello world!");
+    part_two(&input);
+    println!("Completed!")
 }
 
 #[allow(dead_code)]
 fn part_one(input: &str) {
-    let mut programs = create_programs();
-    for mov in parse_moves(input) {
+    let mut programs = Programs::new();
+    println!("{}", programs);
+    for mov in Moves::parse_moves(input) {
         mov.execute_move(&mut programs);
     }
-    println!("{:?}", programs);
+    println!("{}", programs);
 }
 
 #[allow(dead_code)]
 fn part_two(input: &str) {
-    
-}
+    let mut programs = Programs::new();
+    let moves: Vec<Moves> = Moves::parse_moves(input).collect();
 
-fn create_programs() -> [char; 16] {
-    ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p']
-}
-
-fn parse_moves(input: &str) -> impl Iterator<Item = Moves> + use<'_>{
-    input.split(',').map(|move_str| {
-        match move_str.chars().nth(0) {
-            Some('s') => Moves::Spin(move_str[1..].parse::<usize>().expect("Failed to parse int")),
-            Some('x') => {
-                let rest = &move_str[1..];
-                let mut split = rest.split('/');
-                let a = split.next().unwrap().parse::<usize>().expect("a: failed to parse to int");
-                let b =  split.next().unwrap().parse::<usize>().expect("b: failed to parse to int");
-                Moves::Exchange(a, b)
-            }
-            Some('p') => {
-                let rest = &move_str[1..];
-                let a = rest.chars().nth(0).unwrap();
-                let b = rest.chars().nth(2).unwrap();
-                Moves::Partner(a, b)
-            }
-            _ => panic!("Can't parse {move_str}")
+    // find cycle length (how many dances to get back to starting position)
+    let mut cycle_length = 0;
+    for i in 0.. {
+        for mov in &moves {
+            mov.execute_move(&mut programs);
         }
-    })
-}
-
-enum Moves {
-    Spin(usize),
-    Exchange(usize, usize),
-    Partner(char, char),
-}
-
-impl Moves {
-    fn execute_move(&self, programs: &mut [char; 16]) {
-        match self {
-            Self::Spin(num) => {
-                programs.rotate_right(*num);
-            },
-            Self::Exchange(a, b) => {
-                programs.swap(*a, *b);
-            },
-            Self::Partner(a, b) => {
-                let a = programs.iter().position(|c| c==a).unwrap();
-                let b = programs.iter().position(|c| c==b).unwrap();
-                programs.swap(a, b);
-            }
+        if programs.is_start() {
+            println!("Cycle length is {0}", i + 1);
+            println!("{programs}");
+            cycle_length = i + 1;
+            break;
         }
     }
+
+    let actual_num_cycles = 1_000_000_000 % 60;
+
+    let mut programs = Programs::new();
+    for _ in 0..actual_num_cycles {
+        for mov in &moves {
+            mov.execute_move(&mut programs);
+        }
+    }
+
+    println!("{programs}    - 1 billion!");
 }
