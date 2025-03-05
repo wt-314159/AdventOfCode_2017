@@ -47,7 +47,7 @@ fn part_two(input: &str) {
         }
     }
 
-    let actual_num_cycles = 1_000_000_000 % 60;
+    let actual_num_cycles = 1_000_000_000 % cycle_length;
 
     let mut programs = Programs::new();
     for _ in 0..actual_num_cycles {

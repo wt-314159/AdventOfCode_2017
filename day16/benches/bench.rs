@@ -1,6 +1,4 @@
-use std::ops::Index;
-
-use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
 use day16::*;
 
 fn bench_partner(c: &mut Criterion) {

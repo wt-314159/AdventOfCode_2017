@@ -38,6 +38,7 @@ fn part_two(input: &str) {
     // quick and dirty method this will work
     let mut max_distance = 0;
     let mut distances = Distances::new(0, 0, 0);
+    #[allow(unused_assignments)]
     let mut temp_distances = Distances::new(0, 0, 0);
     for dir in input.split(',') {
         match dir {

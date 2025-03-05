@@ -72,13 +72,11 @@ fn parse_input(input: &str) -> Vec<Option<Layer>> {
 
 fn parse_input_just_walls(input: &str) -> Vec<Layer> {
     let mut layers = Vec::new(); 
-    let mut prev_depth = 0;
     for line in input.lines() {
         let mut parts = line.split(": ");
         let depth = parts.next().unwrap().parse::<usize>().unwrap();
         let range = parts.next().unwrap().parse::<usize>().unwrap();
         layers.push(Layer::new(depth, range));
-        prev_depth = depth;
     }
     layers
 }
@@ -123,6 +121,7 @@ impl Layer {
         }
     }
 
+    #[allow(dead_code)]
     fn advance_scanner_n_times(&mut self, n: usize) {
         let offset = n % self.period;
         for _ in 0..offset {

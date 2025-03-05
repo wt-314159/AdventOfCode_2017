@@ -1,4 +1,4 @@
-use std::{cell::RefCell, collections::HashSet, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 #[allow(unused_imports)]
 use std::{cmp::max, cmp::min, collections::HashMap, fs};
 // use fancy_regex::Regex;
@@ -63,7 +63,7 @@ fn parse_input(input: &str) -> HashMap<usize, House> {
 }
 
 fn connected_to_house(id: usize, houses: &HashMap<usize, House>) -> HashMap<usize, bool> {
-    let mut con_to_id = Rc::new(RefCell::new(HashMap::new()));
+    let con_to_id = Rc::new(RefCell::new(HashMap::new()));
     con_to_id.borrow_mut().insert(id, false);
 
     loop {
