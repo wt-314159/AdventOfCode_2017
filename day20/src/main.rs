@@ -1,4 +1,5 @@
 use regex::Regex;
+use rayon::prelude::*;
 #[allow(unused_imports)]
 use std::{cmp::max, cmp::min, collections::HashMap, fs};
 use std::{
@@ -14,7 +15,7 @@ fn main() {
     let input = include_str!("../inputs/puzzle_input.txt");
     // let input = include_str!("../inputs/test_puzzle_input.txt");
     // println!("{:?}", input);
-    println!("Input length: {}", input.len());
+    eprintln!("Input length: {}", input.len());
 
     part_one(&input);
 }
@@ -24,8 +25,8 @@ fn part_one(input: &str) {
     let mut simulation = input
         .parse::<Simulation>()
         .expect("Failed to parse simulation");
-    let maybe = simulation.closest_after(1_000_000);
-    println!("Particle {} maybe stays closest", maybe.id);
+    let maybe = simulation.closest_after(1_000);
+    eprintln!("Particle {} maybe stays closest", maybe.id);
 }
 
 #[allow(dead_code)]
@@ -176,10 +177,36 @@ impl Simulation {
             .unwrap()
     }
 
-    fn closest_after(&mut self, steps: usize) -> &Particle {
+    fn step_by(&mut self, steps: usize) {
         for _ in 0..steps {
             self.step();
         }
+    }
+
+    fn closest_after(&mut self, steps: usize) -> &Particle {
+        self.step_by(steps);
+        self.closest_to_origin()
+    }
+
+    fn find_stays_closest(&mut self, step_by: usize, max_steps: usize) -> Option<Particle> {
+        let mut steps: usize = 0;
+        loop {
+            self.step_by(step_by);
+            let cur_closest = self.closest_to_origin();
+            let any = self.particles.iter().any(|p| {
+                p.velocity < cur_closest.velocity || p.acceleration < cur_closest.acceleration
+            });
+            steps += step_by;
+            if !any {
+                return Some(cur_closest.clone());
+            }
+            else if steps + step_by > max_steps {
+                return None
+            }
+        }
+    }
+
+    fn closest_to_origin(&self) -> &Particle {
         self.particles
             .iter()
             .min_by(|p1, p2| p1.manhattan_distance().cmp(&p2.manhattan_distance()))
@@ -187,8 +214,6 @@ impl Simulation {
     }
 
     fn step(&mut self) {
-        for particle in self.particles.iter_mut() {
-            particle.update();
-        }
+        self.particles.iter_mut().for_each(|p| p.update());
     }
 }
