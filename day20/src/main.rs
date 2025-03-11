@@ -1,0 +1,194 @@
+use regex::Regex;
+#[allow(unused_imports)]
+use std::{cmp::max, cmp::min, collections::HashMap, fs};
+use std::{
+    num::{ParseFloatError, ParseIntError},
+    ops::{Add, AddAssign, Sub, SubAssign},
+    str::FromStr,
+};
+// use fancy_regex::Regex;
+// use md5::{Digest, Md5};
+// use priority_queue::PriorityQueue;
+
+fn main() {
+    let input = include_str!("../inputs/puzzle_input.txt");
+    // let input = include_str!("../inputs/test_puzzle_input.txt");
+    // println!("{:?}", input);
+    println!("Input length: {}", input.len());
+
+    part_one(&input);
+}
+
+#[allow(dead_code)]
+fn part_one(input: &str) {
+    let mut simulation = input
+        .parse::<Simulation>()
+        .expect("Failed to parse simulation");
+    let maybe = simulation.closest_after(1_000_000);
+    println!("Particle {} maybe stays closest", maybe.id);
+}
+
+#[allow(dead_code)]
+fn part_two(input: &str) {}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
+struct Coord {
+    x: i64,
+    y: i64,
+    z: i64,
+}
+
+impl FromStr for Coord {
+    type Err = ParseIntError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        // trim starting and trailing < and >
+        let str = &s[1..s.len() - 1];
+        let mut parts = str.split(',');
+
+        let x = parts.next().expect("Missing 'x' part").parse::<i64>()?;
+        let y = parts.next().expect("Missing 'y' part").parse::<i64>()?;
+        let z = parts.next().expect("Missing 'z' part").parse::<i64>()?;
+
+        Ok(Coord { x, y, z })
+    }
+}
+
+impl Add for Coord {
+    type Output = Coord;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self::Output {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
+    }
+}
+
+impl AddAssign for Coord {
+    fn add_assign(&mut self, rhs: Self) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+        self.z += rhs.z;
+    }
+}
+
+impl Sub for Coord {
+    type Output = Coord;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+}
+
+impl SubAssign for Coord {
+    fn sub_assign(&mut self, rhs: Self) {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
+        self.z -= rhs.z;
+    }
+}
+
+impl Ord for Coord {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.manhattan_distance().cmp(&other.manhattan_distance())
+    }
+}
+
+impl Coord {
+    fn manhattan_distance(&self) -> i64 {
+        self.x.abs() + self.y.abs() + self.z.abs()
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+struct Particle {
+    id: usize,
+    position: Coord,
+    velocity: Coord,
+    acceleration: Coord,
+}
+
+impl FromStr for Particle {
+    type Err = ParseIntError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let regex = Regex::new(r#"<-?[0-9]+,-?[0-9]+,-?[0-9]+>"#).unwrap();
+        let mut mats = regex.find_iter(s);
+
+        let position = mats.next().expect("Missing position capture").as_str();
+        let velocity = mats.next().expect("Missing velocity capture").as_str();
+        let acceleration = mats.next().expect("Missing acceleration capture").as_str();
+
+        let position = position.parse::<Coord>()?;
+        let velocity = velocity.parse::<Coord>()?;
+        let acceleration = acceleration.parse::<Coord>()?;
+
+        Ok(Particle {
+            id: 0,
+            position,
+            velocity,
+            acceleration,
+        })
+    }
+}
+
+impl Particle {
+    fn update(&mut self) {
+        self.velocity += self.acceleration;
+        self.position += self.velocity;
+    }
+
+    fn manhattan_distance(&self) -> i64 {
+        self.position.manhattan_distance()
+    }
+}
+
+struct Simulation {
+    particles: Vec<Particle>,
+}
+
+impl FromStr for Simulation {
+    type Err = ParseIntError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut particles = Vec::new();
+        for (i, line) in s.lines().enumerate() {
+            let mut particle = line.parse::<Particle>()?;
+            particle.id = i;
+            particles.push(particle);
+        }
+
+        Ok(Simulation { particles })
+    }
+}
+
+impl Simulation {
+    fn min_acceleration(&self) -> &Particle {
+        self.particles
+            .iter()
+            .min_by(|p1, p2| p1.acceleration.cmp(&p2.acceleration))
+            .unwrap()
+    }
+
+    fn closest_after(&mut self, steps: usize) -> &Particle {
+        for _ in 0..steps {
+            self.step();
+        }
+        self.particles
+            .iter()
+            .min_by(|p1, p2| p1.manhattan_distance().cmp(&p2.manhattan_distance()))
+            .unwrap()
+    }
+
+    fn step(&mut self) {
+        for particle in self.particles.iter_mut() {
+            particle.update();
+        }
+    }
+}
