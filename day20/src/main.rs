@@ -3,9 +3,7 @@ use rayon::prelude::*;
 #[allow(unused_imports)]
 use std::{cmp::max, cmp::min, collections::HashMap, fs};
 use std::{
-    num::{ParseFloatError, ParseIntError},
-    ops::{Add, AddAssign, Sub, SubAssign},
-    str::FromStr,
+    hash::Hash, num::{ParseFloatError, ParseIntError}, ops::{Add, AddAssign, Sub, SubAssign}, str::FromStr
 };
 // use fancy_regex::Regex;
 // use md5::{Digest, Md5};
@@ -17,7 +15,7 @@ fn main() {
     // println!("{:?}", input);
     eprintln!("Input length: {}", input.len());
 
-    part_one(&input);
+    part_two(&input);
 }
 
 #[allow(dead_code)]
@@ -30,7 +28,14 @@ fn part_one(input: &str) {
 }
 
 #[allow(dead_code)]
-fn part_two(input: &str) {}
+fn part_two(input: &str) {
+    let steps = 10_000;
+    let mut simulation = input
+        .parse::<Simulation>()
+        .expect("Failed to parse simulation");
+    let num_remaining = simulation.find_left_particles(steps);
+    eprintln!("{num_remaining} particles remaining after {steps} steps");
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
 struct Coord {
@@ -98,6 +103,12 @@ impl SubAssign for Coord {
 impl Ord for Coord {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.manhattan_distance().cmp(&other.manhattan_distance())
+    }
+}
+
+impl Hash for Coord {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        (self.x, self.y, self.z).hash(state);
     }
 }
 
@@ -215,5 +226,22 @@ impl Simulation {
 
     fn step(&mut self) {
         self.particles.iter_mut().for_each(|p| p.update());
+    }
+
+    fn find_left_particles(&mut self, steps: usize) -> usize {
+        for _ in 0..steps {
+            self.step();
+            self.remove_collided_particles();
+        }
+        self.particles.len()
+    }
+
+    fn remove_collided_particles(&mut self){
+        let mut map = HashMap::new();
+        for p in &self.particles {
+            let entry = map.entry(p.position).or_insert(0);
+            *entry += 1;
+        }
+        self.particles.retain(|p| map[&p.position] == 1);
     }
 }
