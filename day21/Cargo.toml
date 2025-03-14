@@ -1,0 +1,12 @@
+[package]
+name = "day21"
+version = "0.1.1"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.97"
+itertools = "0.14.0"
+# fancy-regex = "0.14.0"
+# md-5 = "0.10.6"
+# priority-queue = "2.1.2"
+# regex = "1.11.1"

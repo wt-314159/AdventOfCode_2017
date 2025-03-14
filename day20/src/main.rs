@@ -1,9 +1,11 @@
 use regex::Regex;
-use rayon::prelude::*;
 #[allow(unused_imports)]
-use std::{cmp::max, cmp::min, collections::HashMap, fs};
+use std::{};
 use std::{
-    hash::Hash, num::{ParseFloatError, ParseIntError}, ops::{Add, AddAssign, Sub, SubAssign}, str::FromStr
+    hash::Hash, num::ParseIntError, 
+    ops::{Add, AddAssign, Sub, SubAssign}, 
+    str::FromStr,
+    collections::HashMap,
 };
 // use fancy_regex::Regex;
 // use md5::{Digest, Md5};
@@ -181,6 +183,7 @@ impl FromStr for Simulation {
 }
 
 impl Simulation {
+    #[allow(dead_code)]
     fn min_acceleration(&self) -> &Particle {
         self.particles
             .iter()
@@ -199,6 +202,7 @@ impl Simulation {
         self.closest_to_origin()
     }
 
+    #[allow(dead_code)]
     fn find_stays_closest(&mut self, step_by: usize, max_steps: usize) -> Option<Particle> {
         let mut steps: usize = 0;
         loop {
