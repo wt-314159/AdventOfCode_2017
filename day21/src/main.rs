@@ -229,6 +229,7 @@ impl Pattern {
             .collect::<Vec<_>>()
     }
 
+    #[allow(dead_code)]
     fn matches(&self, pattern: &Pattern, (rotation, flip): (Rotation, Flip)) -> bool {
         let len = pattern.0.len();
         if len != self.0.len() {
@@ -243,6 +244,43 @@ impl Pattern {
             }
         }
         true
+    }
+
+    fn direct_match(&self, pattern: &Pattern) -> bool {
+        let len = pattern.0.len();
+        if len != self.0.len() {
+            return false;
+        }
+
+        for i in 0..len {
+            for j in 0..len {
+                if pattern.0[i][j] != self.0[i][j] {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+
+    fn generate_translated_patterns(&self) -> Vec<Pattern> {
+        let mut translated = Vec::new();
+        let len = self.0.len();
+        let ranges = orientations().map(|o| get_translated_ranges(len, o));
+        for mut range in ranges {
+            let mut pattern = Vec::new();
+            for _ in 0..len {
+                let mut row = Vec::new();
+                for _ in 0..len {
+                    let origin = range.next().unwrap();
+                    row.push(self.0[origin.0][origin.1]);
+                }
+                pattern.push(row);
+            }
+            let pattern = Pattern(pattern);
+            translated.push(pattern);
+        }
+
+        translated
     }
 }
 
@@ -316,7 +354,7 @@ fn get_translated_ranges(
 }
 
 struct Rule {
-    input_pattern: Pattern,
+    input_patterns: Vec<Pattern>,
     output_pattern: Pattern,
 }
 
@@ -335,8 +373,9 @@ impl FromStr for Rule {
                 .ok_or_else(|| anyhow!("Failed to parse '{s}'"))?
                 .parse::<Pattern>()?,
         );
+        let input_patterns = input_pattern.generate_translated_patterns();
         Ok(Rule {
-            input_pattern,
+            input_patterns,
             output_pattern,
         })
     }
@@ -345,8 +384,8 @@ impl FromStr for Rule {
 impl Rule {
     fn matches(&self, other: &Pattern) -> Option<&Pattern> {
         // rotate, flip etc the inupt pattern and see if any matches other
-        for orientation in orientations() {
-            if self.input_pattern.matches(&other, orientation) {
+        for pat in &self.input_patterns {
+            if pat.direct_match(other) {
                 return Some(&self.output_pattern);
             }
         }
@@ -496,7 +535,7 @@ mod tests {
             (. . . .),
             (. . . .),
             (# . . #));
-        let mut split = pattern.split();
+        let split = pattern.split();
 
         let top_left = pattern!(
             (# .),
@@ -514,10 +553,10 @@ mod tests {
             (. .),
             (. #)
         );
-        assert_eq!(split[0][1], top_left);
+        assert_eq!(split[0][0], top_left);
         assert_eq!(split[0][1], top_right);
-        assert_eq!(split[0][1], bot_left);
-        assert_eq!(split[0][1], bot_right);
+        assert_eq!(split[1][0], bot_left);
+        assert_eq!(split[1][1], bot_right);
     }
 
     // # . | . #
